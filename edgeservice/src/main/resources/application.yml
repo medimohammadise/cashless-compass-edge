@@ -1,0 +1,27 @@
+server:
+  port: 8080
+
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: school-route
+          uri: http://localhost:8000
+          predicates:
+            - Path=/schools/**
+      default-filters:
+        - TokenRelay
+        - SaveSession
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-id: edge-service
+            client-secret: school-keycloak-secret
+            scope: openid
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8080/auth/realms/SchoolRealm
+  session:
+    store-type: redis
