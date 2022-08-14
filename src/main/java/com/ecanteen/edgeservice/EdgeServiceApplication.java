@@ -12,12 +12,14 @@ import org.springframework.security.oauth2.client.oidc.web.server.logout.OidcCli
 import org.springframework.security.oauth2.client.registration.ReactiveClientRegistrationRepository;
 import org.springframework.security.oauth2.client.web.server.ServerOAuth2AuthorizedClientRepository;
 import org.springframework.security.oauth2.client.web.server.WebSessionServerOAuth2AuthorizedClientRepository;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.security.web.server.SecurityWebFilterChain;
 import org.springframework.security.web.server.authentication.HttpStatusServerEntryPoint;
 import org.springframework.security.web.server.authentication.logout.ServerLogoutSuccessHandler;
 import org.springframework.security.web.server.csrf.CookieServerCsrfTokenRepository;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.WebFilter;
 import reactor.core.publisher.Mono;
 
 @SpringBootApplication
@@ -50,17 +52,17 @@ public class EdgeServiceApplication {
         return new WebSessionServerOAuth2AuthorizedClientRepository();
     }
 
-//    @Bean
-//    WebFilter csrfWebFilter() {
-//        // Required because of https://github.com/spring-projects/spring-security/issues/5766
-//        return (exchange, chain) -> {
-//            exchange.getResponse().beforeCommit(() -> Mono.defer(() -> {
-//                Mono<CsrfToken> csrfToken = exchange.getAttribute(CsrfToken.class.getName());
-//                return csrfToken != null ? csrfToken.then() : Mono.empty();
-//            }));
-//            return chain.filter(exchange);
-//        };
-//    }
+    @Bean
+    WebFilter csrfWebFilter() {
+        // Required because of https://github.com/spring-projects/spring-security/issues/5766
+        return (exchange, chain) -> {
+            exchange.getResponse().beforeCommit(() -> Mono.defer(() -> {
+                Mono<CsrfToken> csrfToken = exchange.getAttribute(CsrfToken.class.getName());
+                return csrfToken != null ? csrfToken.then() : Mono.empty();
+            }));
+            return chain.filter(exchange);
+        };
+    }
 
     private ServerLogoutSuccessHandler oidcLogoutSuccessHandler(ReactiveClientRegistrationRepository clientRegistrationRepository) {
         var oidcLogoutSuccessHandler = new OidcClientInitiatedServerLogoutSuccessHandler(clientRegistrationRepository);

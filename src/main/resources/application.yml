@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 9000
 
 spring:
   cloud:
@@ -25,3 +25,6 @@ spring:
             issuer-uri: http://localhost:8080/auth/realms/SchoolRealm
   session:
     store-type: redis
+
+  main:
+    allow-bean-definition-overriding: true
